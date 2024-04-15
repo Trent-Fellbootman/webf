@@ -19,6 +19,7 @@ final ContentType _cssContentType = ContentType('text', 'css', charset: UTF_8);
 // MIME types suits JavaScript: https://mathiasbynens.be/demo/javascript-mime-type
 final ContentType javascriptContentType = ContentType('text', 'javascript', charset: UTF_8);
 final ContentType htmlContentType = ContentType('text', 'html', charset: UTF_8);
+final ContentType bhtmlContentType = ContentType('application', 'vnd.webf.bhtml');
 final ContentType _javascriptApplicationContentType = ContentType('application', 'javascript', charset: UTF_8);
 final ContentType _xJavascriptContentType = ContentType('application', 'x-javascript', charset: UTF_8);
 final ContentType webfBc1ContentType = ContentType('application', 'vnd.webf.bc1');
@@ -48,7 +49,6 @@ bool isGzip(List<int> data) {
 
   return magicNumber1 == 0x1F && magicNumber2 == 0x8B;
 }
-
 
 // The default accept request header.
 // The order is HTML -> KBC -> JavaScript.
@@ -82,13 +82,14 @@ void _failedToResolveBundle(String url) {
 }
 
 abstract class WebFBundle {
-  WebFBundle(this.url, { ContentType? contentType }): _contentType = contentType;
+  WebFBundle(this.url, {ContentType? contentType}) : _contentType = contentType;
 
   // Unique resource locator.
   final String url;
 
   // Uri parsed by uriParser, assigned after resolving.
   Uri? _uri;
+
   Uri? get resolvedUri {
     _uri ??= Uri.tryParse(url);
     return _uri;
@@ -99,9 +100,11 @@ abstract class WebFBundle {
 
   // Indicate the bundle is resolved.
   bool get isResolved => _uri != null;
+
   bool get isDataObtained => data != null;
 
   bool _hitCache = false;
+
   set hitCache(bool value) => _hitCache = value;
 
   String? get cacheKey {
@@ -112,7 +115,13 @@ abstract class WebFBundle {
   // Content type for data.
   // The default value is plain text.
   ContentType? _contentType;
+
   ContentType get contentType => _contentType ?? _resolveContentType(_uri);
+
+  // Is content for this bundle was stored in cpp side.
+  bool _isRemoteId = false;
+  int? scriptId;
+  bool get isRemoteId => _isRemoteId;
 
   // Pre process the data before the data actual used.
   Future<void> preProcessing(double contextId) async {
@@ -135,7 +144,7 @@ abstract class WebFBundle {
   }
 
   @mustCallSuper
-  Future<void> resolve({ String? baseUrl, UriParser? uriParser }) async {
+  Future<void> resolve({String? baseUrl, UriParser? uriParser}) async {
     if (isResolved) return;
 
     // Source is input by user, do not trust it's a valid URL.
@@ -185,6 +194,8 @@ abstract class WebFBundle {
       return _javascriptApplicationContentType;
     } else if (_isUriExt(uri, '.html')) {
       return ContentType.html;
+    } else if (_isUriExt(uri, '.bhtml')) {
+      return bhtmlContentType;
     } else if (_isSupportedBytecode('', uri)) {
       return webfBc1ContentType;
     } else if (_isUriExt(uri, '.css')) {
@@ -209,11 +220,14 @@ abstract class WebFBundle {
   }
 
   bool get isHTML => contentType.mimeType == ContentType.html.mimeType;
+  bool get isBHTML => contentType == bhtmlContentType;
   bool get isCSS => contentType.mimeType == _cssContentType.mimeType;
+
   bool get isJavascript =>
       contentType.mimeType == javascriptContentType.mimeType ||
       contentType.mimeType == _javascriptApplicationContentType.mimeType ||
       contentType.mimeType == _xJavascriptContentType.mimeType;
+
   bool get isBytecode => contentType.mimeType == webfBc1ContentType || _isSupportedBytecode(contentType.mimeType, _uri);
 }
 
@@ -230,6 +244,12 @@ class DataBundle extends WebFBundle {
     _contentType = contentType ?? ContentType.text;
   }
 
+  DataBundle.fromScriptId(int scriptId, {ContentType? contentType}) : super(DEFAULT_URL) {
+    this.scriptId = scriptId;
+    _contentType = contentType ?? javascriptContentType;
+    _isRemoteId = true;
+  }
+
   DataBundle.fromDataUrl(String dataUrl, {ContentType? contentType}) : super(dataUrl) {
     UriData uriData = UriData.parse(dataUrl);
     data = uriData.contentAsBytes();
@@ -243,10 +263,10 @@ class DataBundle extends WebFBundle {
 // The bundle that source from http or https.
 class NetworkBundle extends WebFBundle {
   // Do not access this field directly; use [_httpClient] instead.
-  static final HttpClient _sharedHttpClient = HttpClient()
-    ..userAgent = NavigatorModule.getUserAgent();
+  static final HttpClient _sharedHttpClient = HttpClient()..userAgent = NavigatorModule.getUserAgent();
 
-  NetworkBundle(String url, {this.additionalHttpHeaders, ContentType? contentType}) : super(url, contentType: contentType);
+  NetworkBundle(String url, {this.additionalHttpHeaders, ContentType? contentType})
+      : super(url, contentType: contentType);
 
   Map<String, String>? additionalHttpHeaders = {};
 
@@ -303,7 +323,8 @@ class NetworkBundle extends WebFBundle {
     // and decode them if they are in gzip format.
     if (isGzip(bytes)) {
       if (enableWebFProfileTracking) {
-        WebFProfiler.instance.startTrackNetworkStep(currentProfileOp!, 'Uint8List.fromList(gzip.decoder.convert(bytes))');
+        WebFProfiler.instance
+            .startTrackNetworkStep(currentProfileOp!, 'Uint8List.fromList(gzip.decoder.convert(bytes))');
       }
 
       bytes = Uint8List.fromList(gzip.decoder.convert(bytes));
@@ -331,7 +352,7 @@ class NetworkBundle extends WebFBundle {
 }
 
 class AssetsBundle extends WebFBundle {
-  AssetsBundle(String url, { ContentType? contentType }) : super(url, contentType: contentType);
+  AssetsBundle(String url, {ContentType? contentType}) : super(url, contentType: contentType);
 
   @override
   Future<void> obtainData(double contextId) async {
@@ -363,7 +384,7 @@ class AssetsBundle extends WebFBundle {
 
 /// The bundle that source from local io.
 class FileBundle extends WebFBundle {
-  FileBundle(String url, { ContentType? contentType }) : super(url, contentType: contentType);
+  FileBundle(String url, {ContentType? contentType}) : super(url, contentType: contentType);
 
   @override
   Future<void> obtainData(double contextId) async {
