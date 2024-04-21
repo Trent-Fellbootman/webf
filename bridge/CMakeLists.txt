@@ -429,7 +429,15 @@ elseif ($ENV{WEBF_JS_ENGINE} MATCHES "v8")
     # Binding files
     bindings/v8/atomic_string.cc
     bindings/v8/native_string_utils.cc
-
+    bindings/v8/script_value.cc
+    bindings/v8/exception_state.cc
+    bindings/v8/script_wrappable.cc
+    bindings/v8/world_safe_v_8_reference.cc
+    bindings/v8/platform/script_state.cc
+    bindings/v8/platform/heap/garbage_collected.h
+    bindings/v8/union_base.cc
+    bindings/v8/name_client.cc
+    bindings/v8/dictionary_base.cc
     out/built_in_string.cc
   )
 
