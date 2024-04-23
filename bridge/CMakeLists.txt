@@ -432,12 +432,34 @@ elseif ($ENV{WEBF_JS_ENGINE} MATCHES "v8")
     bindings/v8/script_value.cc
     bindings/v8/exception_state.cc
     bindings/v8/script_wrappable.cc
-    bindings/v8/world_safe_v_8_reference.cc
+    bindings/v8/world_safe_v8_reference.cc
+    bindings/v8/wrapper_type_info.cc
+    bindings/v8/v8_interface_bridge_base.cc
     bindings/v8/platform/script_state.cc
     bindings/v8/platform/heap/garbage_collected.h
     bindings/v8/union_base.cc
     bindings/v8/name_client.cc
     bindings/v8/dictionary_base.cc
+    bindings/v8/trace_wrapper_v8_reference.cc
+    bindings/v8/build/build_config.h
+    bindings/v8/build/buildflag.h
+    bindings/v8/platform/platform_export.h
+    bindings/v8/platform/wtf/type_traits.cc
+    bindings/v8/platform/wtf/vector_traits.cc
+    bindings/v8/platform/wtf/allocator/allocator.h
+    bindings/v8/base/allocator/partition_allocator/src/partition_alloc/partition_alloc_base/compiler_specific.h
+    bindings/v8/base/allocator/partition_allocator/src/partition_alloc/pointers/raw_ptr.h
+    bindings/v8/base/allocator/partition_allocator/src/partition_alloc/pointers/raw_ptr_exclusion.h
+    bindings/v8/base/memory/raw_ptr.h
+    bindings/v8/base/memory/raw_ptr_exclusion.h
+    bindings/v8/base/memory/scoped_refptr.h
+    bindings/v8/base/memory/stack_allocated.h
+    bindings/v8/base/compiler_specific.h
+    bindings/v8/gin/public/context_holder.h
+    bindings/v8/gin/public/gin_embedders.h
+    bindings/v8/gin/public/wrapper_info.h
+    bindings/v8/gin/gin_export.h
+    bindings/v8/module/v8_binding_for_modules.cc
     out/built_in_string.cc
   )
 

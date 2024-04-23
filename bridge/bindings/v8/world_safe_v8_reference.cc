@@ -3,4 +3,4 @@
 * Copyright (C) 2022-present The WebF authors. All rights reserved.
 */
 
-#include "dictionary_base.h"
+#include "world_safe_v8_reference.h"

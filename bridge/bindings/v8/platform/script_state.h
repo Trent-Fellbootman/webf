@@ -1,7 +1,7 @@
 /*
 * Copyright (C) 2019-2022 The Kraken authors. All rights reserved.
 * Copyright (C) 2022-present The WebF authors. All rights reserved.
- */
+*/
 
 #ifndef WEBF_SCRIPT_STATE_H
 #define WEBF_SCRIPT_STATE_H
@@ -17,7 +17,9 @@
 //#include "third_party/blink/renderer/platform/platform_export.h"
 //#include "third_party/blink/renderer/platform/wtf/assertions.h"
 #include <v8/v8.h>
+#include "bindings/v8/platform/heap/garbage_collected.h"
 #include "foundation/macros.h"
+#include "bindings/v8/base/memory/stack_allocated.h"
 
 namespace webf {
 
@@ -79,7 +81,7 @@ class V8PerContextData;
 class ScriptState : public GarbageCollected<ScriptState> {
  public:
   class Scope final {
-    WEBF_STACK_ALLOCATED();
+    STACK_ALLOCATED();
 
    public:
     // You need to make sure that scriptState->context() is not empty before
@@ -249,9 +251,9 @@ class ScriptState : public GarbageCollected<ScriptState> {
   static void SetCreateCallback(CreateCallback);
   friend class ScriptStateImpl;
 
-//  static constexpr int kV8ContextPerContextDataIndex =
-//      static_cast<int>(gin::kPerContextDataStartIndex) +
-//      static_cast<int>(gin::kEmbedderBlink);
+  static constexpr int kV8ContextPerContextDataIndex =
+      static_cast<int>(gin::kPerContextDataStartIndex) +
+      static_cast<int>(gin::kEmbedderBlink);
 };
 
 // ScriptStateProtectingContext keeps the context associated with the
@@ -291,7 +293,6 @@ class ScriptStateProtectingContext final
   Member<ScriptState> script_state_;
   ScopedPersistent<v8::Context> context_;
 };
-
-}  // namespace blink
+}  // namespace webf
 
 #endif  // WEBF_SCRIPT_STATE_H

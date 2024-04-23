@@ -1,13 +1,14 @@
 /*
 * Copyright (C) 2019-2022 The Kraken authors. All rights reserved.
 * Copyright (C) 2022-present The WebF authors. All rights reserved.
- */
+*/
 
-#ifndef WEBF_WORLD_SAFE_V_8_REFERENCE_H
-#define WEBF_WORLD_SAFE_V_8_REFERENCE_H
+#ifndef WEBF_WORLD_SAFE_V8_REFERENCE_H
+#define WEBF_WORLD_SAFE_V8_REFERENCE_H
 
-#include "foundation/macros.h"
 #include <v8/v8.h>
+#include "foundation/macros.h"
+#include "trace_wrapper_v8_reference.h"
 
 //#include "third_party/blink/renderer/platform/bindings/dom_wrapper_world.h"
 //#include "third_party/blink/renderer/platform/bindings/trace_wrapper_v8_reference.h"
@@ -83,9 +84,9 @@ class WorldSafeV8Reference final {
   // Returns the V8 reference.  Crashes if |world_| is set and it is
   // different from |target_script_state|'s world.
   v8::Local<V8Type> Get(ScriptState* target_script_state) const {
-    DCHECK(!v8_reference_.IsEmpty());
+//    DCHECK(!v8_reference_.IsEmpty());
     if (world_) {
-      CHECK_EQ(world_.Get(), &target_script_state->World());
+//      CHECK_EQ(world_.Get(), &target_script_state->World());
     }
     return v8_reference_.Get(target_script_state->GetIsolate());
   }
@@ -93,7 +94,7 @@ class WorldSafeV8Reference final {
   // Returns a V8 reference that is safe to access in |target_script_state|.
   // The return value may be a cloned object.
   v8::Local<V8Type> GetAcrossWorld(ScriptState* target_script_state) const {
-    CHECK(world_);
+//    CHECK(world_);
     return WorldSafeV8ReferenceInternal::ToWorldSafeValue(
                target_script_state, v8_reference_, *world_.Get())
         .template As<V8Type>();
@@ -102,12 +103,12 @@ class WorldSafeV8Reference final {
   // Sets a new V8 reference.  Crashes if |world_| is set and it is
   // different from |new_value|'s world.
   void Set(v8::Isolate* isolate, v8::Local<V8Type> new_value) {
-    DCHECK(!new_value.IsEmpty());
-    CHECK(isolate->InContext());
+//    DCHECK(!new_value.IsEmpty());
+//    CHECK(isolate->InContext());
     const DOMWrapperWorld& new_world = DOMWrapperWorld::Current(isolate);
     WorldSafeV8ReferenceInternal::MaybeCheckCreationContextWorld(new_world,
                                                                  new_value);
-    CHECK(v8_reference_.IsEmpty() || world_.Get() == &new_world);
+//    CHECK(v8_reference_.IsEmpty() || world_.Get() == &new_world);
     v8_reference_.Reset(isolate, new_value);
     world_ = &new_world;
   }
@@ -115,8 +116,8 @@ class WorldSafeV8Reference final {
   // Forcibly sets a new V8 reference even when the worlds are different.  The
   // world of this V8 reference will be |new_value|'s world.
   void SetAcrossWorld(v8::Isolate* isolate, v8::Local<V8Type> new_value) {
-    DCHECK(!new_value.IsEmpty());
-    CHECK(isolate->InContext());
+//    DCHECK(!new_value.IsEmpty());
+//    CHECK(isolate->InContext());
     const DOMWrapperWorld& new_world = DOMWrapperWorld::Current(isolate);
     v8_reference_.Reset(isolate, new_value);
     world_ = &new_world;
@@ -154,35 +155,35 @@ class WorldSafeV8Reference final {
 namespace WTF {
 
 template <typename V8Type>
-struct VectorTraits<blink::WorldSafeV8Reference<V8Type>>
-    : VectorTraitsBase<blink::WorldSafeV8Reference<V8Type>> {
-  STATIC_ONLY(VectorTraits);
+struct VectorTraits<webf::WorldSafeV8Reference<V8Type>>
+    : VectorTraitsBase<webf::WorldSafeV8Reference<V8Type>> {
+  WEBF_STATIC_ONLY(VectorTraits);
 
   static constexpr bool kCanInitializeWithMemset =
       VectorTraits<
-          blink::TraceWrapperV8Reference<V8Type>>::kCanInitializeWithMemset &&
-      VectorTraits<scoped_refptr<const blink::DOMWrapperWorld>>::
+          webf::TraceWrapperV8Reference<V8Type>>::kCanInitializeWithMemset &&
+      VectorTraits<scoped_refptr<const webf::DOMWrapperWorld>>::
           kCanInitializeWithMemset;
   static constexpr bool kCanClearUnusedSlotsWithMemset =
-      VectorTraits<blink::TraceWrapperV8Reference<V8Type>>::
+      VectorTraits<webf::TraceWrapperV8Reference<V8Type>>::
           kCanClearUnusedSlotsWithMemset &&
       VectorTraits<scoped_refptr<const blink::DOMWrapperWorld>>::
           kCanClearUnusedSlotsWithMemset;
   static constexpr bool kCanCopyWithMemcpy =
       VectorTraits<
-          blink::TraceWrapperV8Reference<V8Type>>::kCanCopyWithMemcpy &&
+          webf::TraceWrapperV8Reference<V8Type>>::kCanCopyWithMemcpy &&
       VectorTraits<
-          scoped_refptr<const blink::DOMWrapperWorld>>::kCanCopyWithMemcpy;
+          scoped_refptr<const webf::DOMWrapperWorld>>::kCanCopyWithMemcpy;
   static constexpr bool kCanMoveWithMemcpy =
       VectorTraits<
-          blink::TraceWrapperV8Reference<V8Type>>::kCanMoveWithMemcpy &&
+          webf::TraceWrapperV8Reference<V8Type>>::kCanMoveWithMemcpy &&
       VectorTraits<
-          scoped_refptr<const blink::DOMWrapperWorld>>::kCanMoveWithMemcpy;
+          scoped_refptr<const webf::DOMWrapperWorld>>::kCanMoveWithMemcpy;
 
   static constexpr bool kCanTraceConcurrently = VectorTraits<
-      blink::TraceWrapperV8Reference<V8Type>>::kCanTraceConcurrently;
+      webf::TraceWrapperV8Reference<V8Type>>::kCanTraceConcurrently;
 };
 
 }  // namespace WTF
 
-#endif  // WEBF_WORLD_SAFE_V_8_REFERENCE_H
+#endif  // WEBF_WORLD_SAFE_V8_REFERENCE_H

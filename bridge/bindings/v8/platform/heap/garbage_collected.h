@@ -17,6 +17,8 @@
 #include <v8/v8.h>
 #include <v8/v8-cppgc.h>
 #include <v8/cppgc/allocation.h>
+#include <v8/cppgc/type-traits.h>
+#include <concepts>
 
 namespace cppgc {
 class LivenessBroker;
@@ -63,9 +65,9 @@ namespace base::internal {
 
 // v8 lives outside the Chromium repository and cannot rely on //base concepts
 // like `DISALLOW_UNRETAINED()`.
-template <typename T>
-requires cppgc::IsGarbageCollectedOrMixinTypeV<T>
-    inline constexpr bool kCustomizeSupportsUnretained<T> = false;
+//template <typename T>
+//requires cppgc::IsGarbageCollectedOrMixinTypeV<T>
+//    inline constexpr bool kCustomizeSupportsUnretained<T> = false;
 
 }  // namespace base::internal
 

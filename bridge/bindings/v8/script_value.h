@@ -5,20 +5,21 @@
 #ifndef BRIDGE_SCRIPT_VALUE_H
 #define BRIDGE_SCRIPT_VALUE_H
 
+#include <v8/cppgc/visitor.h>
 #include <v8/v8.h>
-#include <memory>
 #include <concepts>
+#include <memory>
 #include "atomic_string.h"
+#include "dictionary_base.h"
 #include "exception_state.h"
 #include "foundation/macros.h"
 #include "foundation/native_string.h"
-#include "foundation/native_value.h"
-#include "dictionary_base.h"
 #include "platform/script_state.h"
-#include "world_safe_v_8_reference.h"
-#include "atomic_string.h"
-#include <v8/cppgc/visitor.h>
 #include "union_base.h"
+#include "world_safe_v8_reference.h"
+#include "bindings/v8/platform/wtf/vector_traits.h"
+#include "script_wrappable.h"
+#include "module/v8_binding_for_modules.h"
 
 namespace webf {
 namespace bindings {
@@ -30,7 +31,7 @@ class ScriptState;
 // ScriptValue is used when an idl specifies the type as 'any'. ScriptValue
 // stores the v8 value using WorldSafeV8Reference.
 class ScriptValue final {
-  WEBF_DISALLOW_NEW();
+  DISALLOW_NEW();
 
  public:
   // ScriptValue::From() is restricted to certain types that are unambiguous in
@@ -177,14 +178,14 @@ class ScriptValue final {
 
 }  // namespace webf
 
-//namespace WTF {
-//
-//// VectorTraits for ScriptValue depend entirely on
-//// WorldSafeV8Reference<v8::Value>.
-//template <>
-//struct VectorTraits<blink::ScriptValue>
-//    : VectorTraits<blink::WorldSafeV8Reference<v8::Value>> {};
-//
-//}  // namespace WTF
+namespace WTF {
+
+// VectorTraits for ScriptValue depend entirely on
+// WorldSafeV8Reference<v8::Value>.
+template <>
+struct VectorTraits<webf::ScriptValue>
+    : VectorTraits<webf::WorldSafeV8Reference<v8::Value>> {};
+
+}  // namespace WTF
 
 #endif  // BRIDGE_SCRIPT_VALUE_H

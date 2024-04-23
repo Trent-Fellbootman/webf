@@ -1,7 +1,7 @@
 /*
 * Copyright (C) 2019-2022 The Kraken authors. All rights reserved.
 * Copyright (C) 2022-present The WebF authors. All rights reserved.
- */
+*/
 
 #ifndef WEBF_SCRIPT_WRAPPABLE_H
 #define WEBF_SCRIPT_WRAPPABLE_H
@@ -15,6 +15,8 @@
 //#include "third_party/blink/renderer/platform/wtf/type_traits.h"
 #include <v8/v8.h>
 #include "platform/heap/garbage_collected.h"
+#include "name_client.h"
+#include "base/memory/stack_allocated.h"
 
 namespace webf {
 
